@@ -1,0 +1,5 @@
+mrtransform -linear /data_network/summer_projects/alvesrod/Share/2023_mouse-dMRI/codes/correctFrameAndRAS/linearTransform_t1FLASH.txt T1_FLASH_3D_SCAN10-M672.nii T1_FLASH_3D_SCAN10-M672_mrLinTrans.nii
+fslswapdim T1_FLASH_3D_SCAN10-M672_mrLinTrans.nii x z -y T1_FLASH_3D_SCAN10-M672_mrLinTrans_fslSwapDim-RAS.nii
+
+mrtransform -linear /data_network/summer_projects/alvesrod/Share/2023_mouse-dMRI/codes/correctFrameAndRAS/linearTransform_3dDTI.txt M672-BrukerDtiStandard-exvivo_DTI3D_80microns_15dir_b2000-zero_transform.nii M672-BrukerDtiStandard-exvivo_DTI3D_80microns_15dir_b2000-zero_transform_mrLinTrans.nii
+fslswapdim M672-BrukerDtiStandard-exvivo_DTI3D_80microns_15dir_b2000-zero_transform_mrLinTrans.nii -x -y z M672-BrukerDtiStandard-exvivo_DTI3D_80microns_15dir_b2000-zero_transform_mrLinTrans_fslSwapDim-RAS.nii

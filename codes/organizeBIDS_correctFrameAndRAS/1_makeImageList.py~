@@ -1,0 +1,103 @@
+# -*- coding: utf-8 -*
+
+import os
+import subprocess
+import math
+import datetime
+import re
+
+
+commandOutput = subprocess.run(['reset'], stdout=subprocess.PIPE)
+print("\n\n####################################################################################################################################################")
+print("\n\nScript to make a txt doc containing the list of subjects with their respective images (anat, func, angio) - Coded by Diego ALVES RODRIGUES DE SOUZA")
+print("\n\n####################################################################################################################################################")
+
+
+print("\n\n################################################### \nStep 0: Define options and paths \n###################################################\n")
+
+
+# T1 FLASH and 3D DTI acquisitions of WT and Het MAP6 mice ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+filePoolPath = "/data_network/summer_projects/alvesrod/Share/2023_mouse-dMRI/datasets/20181210_originalData_manipDTI_wt-hetMAP6Mice/allSubjects/t1FLASH-zeroTransformDTI" #Path to folder containing all images o$
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+sizeThreshold = "50M" # Threshold to show files only above 6 megabytes
+
+
+subjectList = ["M672","M872","M874","M875","M886","M8876","M757","M857","M866","M867bis","M877","M881bis"] #The first 6 are WT and the last ones are het MAP6 mice
+
+imageList = ["T1_FLASH","DTI3D"]
+
+infoSeparator = ";"
+outputTxtFileName = "listOfSubjectsAndImages_v1.txt"
+
+debugMode = 1
+
+print("\n\n###################################################\n")
+
+
+
+print("\n\n################################################### \nStep 1: Get an image list and organize data \n###################################################\n")
+os.chdir(filePoolPath)
+
+
+commandOutput = subprocess.run(["du --threshold=" + sizeThreshold + " *"], shell=True, stdout=subprocess.PIPE)
+#print(commandOutput.stdout.decode('utf-8'))
+outputList = commandOutput.stdout.decode('utf-8')[0:-1]
+outputList = outputList.split("\n")
+
+if debugMode:
+    print(outputList)
+    print(len(outputList))
+    print(outputList[0])
+
+outputOrgList = ["" for x in range(len(outputList))]
+
+print("Organized list of images:")
+for lineNumber in range(len(outputList)):
+    #print(lineNumber)
+    outputOrgList[lineNumber] = outputList[lineNumber].split("\t")
+    print("listPos: {:d}, imageSize: {:s}, imageName: {:s}".format(lineNumber, outputOrgList[lineNumber][0], outputOrgList[lineNumber][1] ))
+    
+if debugMode:
+    print(outputOrgList)
+    print(len(outputOrgList))
+    print(outputOrgList[0])
+    print(outputOrgList[0][0])
+    print(outputOrgList[0][1])
+
+print("\n\n###############################################################################################################################\n")
+
+
+
+print("\n\n################################################### \nStep 2: Search for animal ID and image type and create a list in a txt doc \n###################################################\n")
+
+strPatterns = ["" for x in range(2)]
+
+now = datetime.datetime.now()
+
+#with open((now.strftime("%Y%m%d_%H%M%S_") + "listOfSubjectsAndImages_v1.txt"), "w") as ouputTxtFile:
+with open((now.strftime("%Y%m%d_%H%M%S_") + (outputTxtFileName )), "w") as outputTxtFile:
+    for subject in subjectList:
+        print("\n**********************************************************************************************************************************")
+        outputTxtFile.write(subject)
+        for imageType in imageList:
+            print("------------------------------------------------------------------------------------------------------------------------------------")
+            
+            strPatterns = [subject,imageType];
+            print(strPatterns)
+            for lineNumber in range(len(outputOrgList)):
+                if all(x in outputOrgList[lineNumber][1] for x in strPatterns): #This way using "any" or "all" are useful for checking if multiple strings are present
+                    print("Image found for subject: {:s} and image type: {:s}!!!\nline: {:d}, image: {:s}".format(subject, imageType, lineNumber, outputOrgList[lineNumber][1]))
+
+                    outputTxtFile.write(infoSeparator + filePoolPath + "/" + outputOrgList[lineNumber][1])
+            print("------------------------------------------------------------------------------------------------------------------------------------")
+        print("************************************************************************************************************************************")
+
+        outputTxtFile.write("\n")
+
+print("\n\n#####################################################################################################################################")
+print("Subjects and their images are organized in the file:\n " + filePoolPath + "/" + (now.strftime("%Y%m%d_%H%M%S_") + outputTxtFileName))
+print("#####################################################################################################################################\n")
+
+
